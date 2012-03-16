@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="schedtest" default="build" basedir=".">
+    <description>Microbenchmark for Java-based schedulers</description>
+
+    <property name="javac.source" value="1.7" />
+    <property name="javac.target" value="1.7" />
+    <!-- Enables/disables inclusion of debug symbols in .class files. -->
+    <property name="debug" value="true" />
+
+    <property name="src.dir" value="${basedir}/src" />
+    <property name="build.dir" value="${basedir}/build" />
+
+    <target name="prepare">
+        <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="build" depends="prepare" description="Builds src files.">
+        <javac destdir="${build.dir}" source="${javac.source}" target="${javac.target}" debug="${debug}" includeantruntime="false">
+            <src path="${src.dir}"/>
+            <compilerarg value="-Xlint"/>
+        </javac>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+</project>

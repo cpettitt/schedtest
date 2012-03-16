@@ -1,6 +1,7 @@
 package com.samsarin.schedtest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -37,21 +38,28 @@ public class Driver {
                 final MergeSort impl = impls[j];
                 System.out.printf("    Testing implementation: %20s ", impl.getClass().getSimpleName());
                 results[j][i] = Long.MAX_VALUE;
+
+                // First validate that the impl sorts correctly.
+                if (!checkSort(impl, toSort)) {
+                    System.out.println("Sort failed! Skipping!");
+                    continue;
+                }
+
+                impl.before();
                 for (int k = 0; k < ITERS_PER_COMBINATION; k++) {
                     gc();
-                    impl.before();
                     final long startTime = System.nanoTime();
                     try {
-                        impls[j].mergesort(toSort, 0, toSort.length);
+                        impl.mergesort(toSort, 0, toSort.length);
                         final long elapsedTime = System.nanoTime() - startTime;
                         results[j][i] = Math.min(results[j][i], elapsedTime);
                         System.out.print(".");
                     } catch (Throwable t) {
                         System.out.print("!");
                     }
-                    impl.after();
                     gc();
                 }
+                impl.after();
                 System.out.println();
             }
         }
@@ -79,6 +87,22 @@ public class Driver {
             }
             System.out.println();
         }
+    }
+
+    private static boolean checkSort(MergeSort impl, int[] toSort) throws ExecutionException, InterruptedException {
+        impl.before();
+        final int[] sorted;
+        try {
+            sorted = impl.mergesort(toSort, 0, toSort.length);
+        } catch (Throwable t) {
+            System.err.println("Check sort failed: " + t.getMessage());
+            return false;
+        }
+        impl.after();
+
+        final int[] javaSorted = Arrays.copyOf(toSort, toSort.length);
+        Arrays.sort(javaSorted);
+        return Arrays.equals(sorted, javaSorted);
     }
     
     private static void gc() {

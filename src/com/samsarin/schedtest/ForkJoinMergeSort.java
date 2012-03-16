@@ -22,6 +22,8 @@ public class ForkJoinMergeSort implements MergeSort {
     }
     
     private static class MergeSortTask extends RecursiveTask<int[]> {
+        private static final long serialVersionUID = 0L;
+
         private final int[] array;
         private final int from;
         private final int to;
